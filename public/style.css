@@ -1,0 +1,15 @@
+html,
+body {
+    margin: 0px;
+    font-family: "Roboto", sans-serif;
+    height: 100%;
+    cursor: default;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+h1 {
+    margin: 0px;
+}
