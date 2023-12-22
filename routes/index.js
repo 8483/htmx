@@ -1,6 +1,54 @@
 let express = require("express");
 let router = express.Router();
 
+let todos = [
+    {
+        id: 1,
+        description: "Do something",
+        amount: 5,
+    },
+    {
+        id: 2,
+        description: "Do another thing",
+        amount: 10,
+    },
+    {
+        id: 3,
+        description: "Additional thing",
+        amount: 7,
+    },
+];
+
+function renderTodos() {
+    let html = `
+        <div class="todos">
+            <div class="headers">
+                <div><b>ID</b></div>
+                <div><b>Description</b></div>
+                <div><b>Amount</b></div>
+            </div>
+            ${todos
+                .map((todo) => {
+                    return `
+                        <div class="todo">
+                            <div>${todo.id || ""}</div>
+                            <div>${todo.description || ""}</div>
+                            <div>${todo.amount || ""}</div>
+                        </div>
+                    `;
+                })
+                .join("")}
+        </div>
+
+        <div class="total">
+            <b>Total:</b>
+            <span>${todos.reduce((acc, item) => acc + item.amount, 0) || 0}</span>
+        </div>
+    `;
+
+    return html;
+}
+
 router.get("/", (req, res) => {
     let html = /*html*/ `
         <!DOCTYPE html>
@@ -17,7 +65,7 @@ router.get("/", (req, res) => {
                     body {
                         padding: 10px;
                         display: grid;
-                        grid-template-rows: 50px 50px 150px;
+                        grid-template-rows: 50px 50px 300px;
                     }
 
                     .form {
@@ -63,7 +111,7 @@ router.get("/", (req, res) => {
                     .total {
                         padding-top: 10px;
                     }
-                </style>
+                </style>              
             </head>
 
             <body>
@@ -72,12 +120,24 @@ router.get("/", (req, res) => {
                 <div class="form">
                     <div class="input-group">
                         <span>Description</span>
-                        <input type="text" name="description" placeholder="task" id="field-description">
+                        <input 
+                            type="text" 
+                            name="description" 
+                            placeholder="task" 
+                            id="field-description"
+                            hx-on:keyup="focusFieldAfterEnterKeypress(event, 'field-amount');"
+                        >
                     </div>
 
                     <div class="input-group">
                         <span>Amount</span>
-                        <input type="number" name="amount" placeholder="number" id="field-amount">
+                        <input 
+                            type="number" 
+                            name="amount" 
+                            placeholder="number" 
+                            id="field-amount"
+                            hx-on:keyup="focusFieldAfterEnterKeypress(event, 'button')"
+                        >
                     </div>
 
                     <button 
@@ -86,87 +146,30 @@ router.get("/", (req, res) => {
                         hx-include="#field-description, #field-amount"
                         hx-target="#todos-container" 
                         hx-swap="innerHTML"
-                        hx-focus="#field-description"
+                        hx-on:keyup="
+                            focusFieldAfterEnterKeypress(event, 'field-description'); 
+                            clearInput('field-description'); 
+                            clearInput('field-amount');
+                        "
                     >
                         Add
                     </button>
                 </div>
 
                 <div id="todos-container" class="todos-container">
-                    ${getTodos()}
+                    ${renderTodos()}
                 </div>
             </body>
 
             <script src="/scripts.js"></script>
             <script>
-                document.addEventListener('htmx:afterSwap', function() {
-                    document.getElementById('field-description').value = "";
-                    document.getElementById('field-amount').value = "";
-                });
-
-                let fieldDescription = document.getElementById("field-description")
-                let fieldAmount = document.getElementById("field-amount")
-                let button = document.getElementById("button")
-
-                focusFieldAfterFieldOnEnter(fieldDescription, fieldAmount )
-                focusFieldAfterFieldOnEnter(fieldAmount, button )
-                focusFieldAfterFieldOnEnter(button, fieldDescription )
+                document.getElementById("field-description").focus()
             </script>
         </html>
     `;
 
     res.send(html);
 });
-
-let todos = [
-    {
-        id: 1,
-        description: "Do something",
-        amount: 5,
-    },
-    {
-        id: 2,
-        description: "Do another thing",
-        amount: 10,
-    },
-    {
-        id: 3,
-        description: "Additional thing",
-        amount: 7,
-    },
-];
-
-function getTodos() {
-    let html = `
-        <div class="todos">
-            <div class="headers">
-                <div><b>ID</b></div>
-                <div><b>Description</b></div>
-                <div><b>Amount</b></div>
-            </div>
-            ${todos
-                .map((todo) => {
-                    return `
-                        <div class="todo">
-                            <div>${todo.id || ""}</div>
-                            <div>${todo.description || ""}</div>
-                            <div>${todo.amount || ""}</div>
-                        </div>
-                    `;
-                })
-                .join("")}
-        </div>
-
-        <div class="total">
-            <b>Total:</b>
-            <span>${todos.reduce((acc, item) => acc + item.amount, 0) || 0}</span>
-        </div>
-    `;
-
-    console.log(html);
-
-    return html;
-}
 
 router.post("/api/todos", (req, res) => {
     let todo = req.body;
@@ -177,7 +180,7 @@ router.post("/api/todos", (req, res) => {
         amount: parseFloat(todo.amount),
     });
 
-    res.send(getTodos());
+    res.send(renderTodos());
 });
 
 module.exports = router;

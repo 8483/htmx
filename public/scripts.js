@@ -1,9 +1,9 @@
-console.log("HTMX");
+function focusFieldAfterEnterKeypress(event, elementId) {
+    if (event.key !== "Enter") return;
 
-function focusFieldAfterFieldOnEnter(from, to) {
-    from.addEventListener("keyup", (e) => {
-        if (event.key === "Enter" || event.keyCode === 13) {
-            to.focus();
-        }
-    });
+    document.getElementById(elementId).focus();
+}
+
+function clearInput(elementId) {
+    document.getElementById(elementId).value = "";
 }
