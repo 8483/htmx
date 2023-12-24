@@ -1,6 +1,4 @@
-function focusFieldAfterEnterKeypress(event, elementId) {
-    if (event.key !== "Enter") return;
-
+function focusElement(elementId) {
     document.getElementById(elementId).focus();
 }
 

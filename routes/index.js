@@ -117,6 +117,7 @@ router.get("/", (req, res) => {
             <body>
                 <h1>TODO</h1>
 
+
                 <div class="form">
                     <div class="input-group">
                         <span>Description</span>
@@ -125,7 +126,7 @@ router.get("/", (req, res) => {
                             name="description" 
                             placeholder="task" 
                             id="field-description"
-                            hx-on:keyup="focusFieldAfterEnterKeypress(event, 'field-amount');"
+                            hx-on:keyup="if (event.key=='Enter') focusElement('field-amount');"
                         >
                     </div>
 
@@ -136,7 +137,7 @@ router.get("/", (req, res) => {
                             name="amount" 
                             placeholder="number" 
                             id="field-amount"
-                            hx-on:keyup="focusFieldAfterEnterKeypress(event, 'button')"
+                            hx-on:keyup="if (event.key=='Enter') focusElement('button');"
                         >
                     </div>
 
@@ -147,9 +148,11 @@ router.get("/", (req, res) => {
                         hx-target="#todos-container" 
                         hx-swap="innerHTML"
                         hx-on:keyup="
-                            focusFieldAfterEnterKeypress(event, 'field-description'); 
-                            clearInput('field-description'); 
-                            clearInput('field-amount');
+                            if (event.key=='Enter') {
+                                focusElement('field-description');
+                                clearInput('field-description');
+                                clearInput('field-amount');
+                            }
                         "
                     >
                         Add
